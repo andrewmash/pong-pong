@@ -10,6 +10,8 @@ float paddle2Y = 10;
 float paddleW = 10;
 float paddleH = 30;
 float dPaddle = paddleH;
+float boardWidth = 1;
+float velocity = 0;
 
 void setup() {
 	size(400, 400);
@@ -73,20 +75,47 @@ float ballBottom() {
 	return ballY + ballR;
 }
 
-void keyPressed() {
-	if (key==CODED) {
-		if (keyCode==UP && paddle1Y >= paddleH) {
-			paddle1Y=paddle1Y - dPaddle;
-		} 
-		if (keyCode==DOWN && paddle1Y <= height - 2 * paddleH) {
-			paddle1Y=paddle1Y + dPaddle;
-		} 
-		if (keyCode==SHIFT && paddle2Y >= paddleH) {
-			paddle2Y=paddle2Y - dPaddle;
-		} 
-		if (keyCode==CONTROL && paddle2Y <= height - 2 * paddleH) {
-			paddle2Y=paddle2Y + dPaddle;
-		}
+// void keyPressed() {
+// 	if (key==CODED) {
+// 		if (keyCode==UP && paddle1Y >= paddleH) {
+// 			pongBoard.emit('move', 'player1', 'up');
+// 		} 
+// 		if (keyCode==DOWN && paddle1Y <= height - 2 * paddleH) {
+// 			pongBoard.emit('move', 'player1', 'down');
+// 		} 
+// 	}
+// }
+
+
+
+pongBoard.on('move1', function(direction) {
+	if (direction=='up') {
+		paddle1Y=paddle1Y - dPaddle;
+	} else if (direction =='down') {
+		paddle1Y=paddle1Y + dPaddle;
 	}
-}
+})
+
+pongBoard.on('move2', function(direction) {
+	if (direction=='up') {
+		paddle2Y=paddle2Y - dPaddle;
+	} else if (direction =='down') {
+		paddle2Y=paddle2Y + dPaddle;
+	}
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
