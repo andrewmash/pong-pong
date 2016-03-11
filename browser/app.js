@@ -2,36 +2,45 @@
 
 window.pongBoard = new window.EventEmitter();
 
-var socket = io(window.location.origin); 
+var socket = io(window.location.origin);
 
-socket.on('connect', function(){
+var velocity1 =
 
-  console.log('I have made a persistent two-way connection to the server!'); 
+  socket.on('connect', function () {
 
-  // the draw event is emitted in whiteboard.js and caught here
-  pongBoard.on('move', function playerMovement(player, direction){
+    console.log('I have made a persistent two-way connection to the server!');
+
+    // the draw event is emitted in whiteboard.js and caught here
+    pongBoard.on('move', function playerMovement(player, direction) {
       socket.emit('paddleMovement', player, direction);
+    })
+
+    socket.on('phoneMove', function (tilt) {
+      pongBoard.emit('move1', tilt);
+    });
+
+    // Event listener for sliding
+
+    // socket.on('phoneMove', function (yAcceleration) {
+    //   pongBoard.emit('move1', yAcceleration);
+    // });
+
+    // socket.on('paddleMove1', function(direction){
+    //   pongBoard.emit('move1', direction);
+    // })
+
+    // socket.on('paddleMove2', function(direction){
+    //   pongBoard.emit('move2', 'direction');
+    // })
+
   })
 
-  socket.on('phoneMove', function(yAcceleration) {
-  	console.log(yAcceleration);
-  })
-
-  socket.on('paddleMove1', function(direction){
-    pongBoard.emit('move1', direction);
-  })
-
-  socket.on('paddleMove2', function(direction){
-    pongBoard.emit('move2', 'direction');
-  })
-  
-})
-
-//window.addEventListener('deviceorientation', function(event1) {
-//})
+window.addEventListener('deviceorientation', function (event) {
+  socket.emit('phone', event.beta);
+});
 
 //event.acceleration.y => long axis acceleration
 //
-window.ondevicemotion = function(event) {
-	socket.emit('phone', event.acceleration.y);
-}
+// window.ondevicemotion = function (event) {
+//   socket.emit('phone', event.acceleration.y);
+// }

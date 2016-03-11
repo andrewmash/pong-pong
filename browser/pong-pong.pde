@@ -4,14 +4,15 @@ float ballR = 10;
 float dX = random(1, 2);
 float dY = random(1, 2);
 float paddle1X;
-float paddle1Y = 10;
+float paddle1Y = 200;
 float paddle2X;
 float paddle2Y = 10;
 float paddleW = 10;
 float paddleH = 30;
 float dPaddle = paddleH;
 float boardWidth = 1;
-float velocity = 0;
+float velocity1 = 0;
+float velocity2 = 0;
 
 void setup() {
 	size(400, 400);
@@ -43,6 +44,8 @@ void draw() {
 	ballX = ballX + dX;
 	ballY = ballY + dY;
 }
+
+
 
 boolean collision() {
 	boolean returnValue = false;
@@ -88,13 +91,22 @@ float ballBottom() {
 
 
 
-pongBoard.on('move1', function(direction) {
-	if (direction=='up') {
-		paddle1Y=paddle1Y - dPaddle;
-	} else if (direction =='down') {
-		paddle1Y=paddle1Y + dPaddle;
-	}
-})
+pongBoard.on('move1', function (tilt) {
+	paddle1Y += 0.08 * tilt;
+});
+
+// Event listener for sliding
+
+// pongBoard.on('move1', function(yAcceleration) {
+	
+
+	// velocity1 += yAcceleration;
+	// paddle1Y += 0.5 * velocity1;
+	// if (Math.abs(yAcceleration) < 3) velocity = 0;
+	// if (Math.abs(paddle1Y) < 400) {
+	// 	console.log("WE RULE DA WORLD", yAcceleration, velocity1, paddle1Y, Date.now());
+	// }
+// })
 
 pongBoard.on('move2', function(direction) {
 	if (direction=='up') {
