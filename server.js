@@ -1,5 +1,3 @@
-
-
 var path = require('path');
 
 var http = require('http');
@@ -8,11 +6,9 @@ var server = http.createServer();
 var express = require('express');
 var app = express();
 
-
-var socketio = require('socket.io'); 
+var socketio = require('socket.io');
 
 server.on('request', app);
-
 
 // creates a new connection server for web sockets and integrates
 // it into our HTTP server 
@@ -21,57 +17,75 @@ server.on('request', app);
 // HTTP requests 
 var io = socketio(server);
 
-var phones = [];
+var phones = {
+  phone1: null,
+  phone2: null
+};
 
 // // use socket server as an event emitter in order to listen for new connctions
-io.on('connection', function(socket){
+io.on('connection', function (socket) {
   //receives the newly connected socket
   //called for each browser that connects to our server
-  console.log('A new client has connected')
-  console.log('socket id: ', socket.id)
+  console.log('A new client has connected');
+  console.log('socket id: ', socket.id);
 
   //event that runs anytime a socket disconnects
-  socket.on('disconnect', function(){
-    console.log('socket id ' + socket.id + ' has disconnected. : ('); 
-  })
+  socket.on('disconnect', function () {
+    console.log('socket id ' + socket.id + ' has disconnected. : (');
+    if (phones.phone1 === socket.id) {
+      console.log("They were phone1.");
+      phones.phone1 = null;
+    }
+    if (phones.phone2 === socket.id) {
+      console.log("They were phone2.");
+      phones.phone2 = null;
+    }
+  });
 
-  socket.on('phoneConnect', function() {
-    phones.push(socket);
-    socket.emit('phoneConnected', phones.length-1);
-  })
+  socket.on('phoneConnect', function () {
+    var id;
+    if (!phones.phone1) {
+      console.log("Assigning ", socket.id, " to phone1");
+      phones.phone1 = socket.id;
+      id = '1';
+    } else if (!phones.phone2) {
+      console.log("Assigning ", socket.id, " to phone2");
+      phones.phone2 = socket.id;
+      id = '2';
+    }
+    socket.emit('phoneConnected', id);
+  });
 
-  socket.on('phone1', function(tilt) {
+  socket.on('phone1', function (tilt) {
     socket.broadcast.emit('phone1Move', tilt);
-  })
+  });
 
-  socket.on('phone2', function(tilt) {
+  socket.on('phone2', function (tilt) {
     socket.broadcast.emit('phone2Move', tilt);
-  })
+  });
 
   // server is receiving draw data from the client here 
   // so we want to broadcast that data to all other connected clients 
-  socket.on('paddleMovement', function(player, yDirection){
-    console.log('paddle moving')
+  socket.on('paddleMovement', function (player, yDirection) {
+    console.log('paddle moving');
     // we need to emit an event all sockets except the socket that originally emitted the 
     // the draw data to the server 
     // broadcasting means sending a message to everyone else except for the 
     // the socket that starts it 
-    if (player=='player1') {
-      io.sockets.emit('paddleMove1', yDirection); 
-    } else if (player=='player2') {
-      io.sockets.emit('paddleMove2', yDirection); 
+    if (player == 'player1') {
+      io.sockets.emit('paddleMove1', yDirection);
+    } else if (player == 'player2') {
+      io.sockets.emit('paddleMove2', yDirection);
     }
   });
-})
+});
 
 app.use(express.static(path.join(__dirname, 'browser')));
 
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
-
 
 server.listen(1337, function () {
-    console.log('The server is listening on port 1337!');
+  console.log('The server is listening on port 1337!');
 });
-

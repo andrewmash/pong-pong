@@ -1,45 +1,106 @@
 float w = document.documentElement.clientWidth;
 float h = document.documentElement.clientHeight;
 float border = 10;
-float ballX = 20;
-float ballY = 60;
+float boardWidth = w - border;
+float boardHeight = h - border;
+float originalBallX = boardWidth / 2;
+float originalBallY = boardHeight / 2;
+float ballX = originalBallX;
+float ballY = originalBallY;
 float ballR = 10;
-float dX = random(1, 2);
-float dY = random(1, 2);
+float dX = random(8, 12);
+float dY = random(-2, 2);
+float speedBase = 10;
 float paddle1X;
 float paddle1Y = (h-2*border)/2;
 float paddle2X;
 float paddle2Y = 10;
-float paddleW = 10;
-float paddleH = h/10;
+float paddleW = 30;
+float paddleH = h/5;
 float dPaddle = paddleH;
-float boardWidth = 1;
+
 float velocity1 = 0;
 float velocity2 = 0;
 float easing = 0.05;
+float player1score = 0;
+float player2score = 0;
 
+/* @pjs font='8-bit-wonder.TTF'; */
+PFont font_name;
+
+var audio = document.getElementById('music');
+
+audio.play();
 
 void setup() {
-	size(w-border, h-border);
-	paddle1X = width-15;
+	size(boardWidth, boardHeight);
+	paddle1X = boardWidth - paddleW - 1;
 	paddle2X = 0;
+	font_name = loadFont('8-bit-wonder.ttf');
+	textFont(font_name, 32);
 }
 
 void draw() {  
-	background(255, 255, 255);
+	background(0, 0, 0);
+	textSize(100);
+	text(player1score, boardWidth * 0.3, 100, 100, 100);
+	text(player2score, boardWidth * 0.7 - 60, 100, 100, 100);
 	ellipse(ballX, ballY, 2 * ballR, 2 * ballR);
 	rect(paddle1X, paddle1Y, paddleW, paddleH);
 	rect(paddle2X, paddle2Y, paddleW, paddleH);
+	for (int i = 0; i < 23; i++) {
+		if (i % 2 == 0) {
+			rect(boardWidth / 2, i * boardHeight / 23, 10, boardHeight / 23);
+		}
+	}
 
 
-	// if (ballRight() > width || ballLeft() < 0) {
-	// 	fill(255, 0, 0, 100);
-	// 	rect(0, 0, width, height);
-	// 	noLoop();
-	// }
+	// Scoring conditions
+
+	if (ballRight() > width) {
+		player1score++;
+		ballX = originalBallX;
+		ballY = originalBallY;
+		dX = random(-(speedBase - 2), -(speedBase + 2));
+		dY = random(-2, 2);
+		if (speedBase < 23) {
+			speedBase++;
+		}
+	}
+
+	if (ballLeft() < 0) {
+		player2score++;
+		ballX = originalBallX;
+		ballY = originalBallY;
+		dX = random(speedBase - 2, speedBase + 2);
+		dY = random(-2, 2);
+		if (speedBase < 23) {
+			speedBase++;
+		}
+	}
+
+	// Victory conditions
+
+	if (player1score > 10) {
+		translate(boardWidth / 2, boardHeight / 2);
+		textAlign(CENTER, CENTER);
+		text("PLAYER 1 WINS", 50, 50);
+		noLoop();
+	}
+
+	if (player2score > 10) {
+		translate(boardWidth / 2, boardHeight / 2);
+		textAlign(CENTER, CENTER);
+		text("PLAYER 2 WINS", 50, 50);
+		noLoop();
+	}
 
 	if (collision()) {
-		dX = -1.1 * dX;
+		if (Math.abs(dX) < 25) {
+			dX = -1.1 * dX;
+		} else {
+			dX = -dX;
+		}
 	}
 
 	if (ballBottom() > height || ballTop() < 0) {
@@ -56,11 +117,15 @@ boolean collision() {
 	boolean returnValue = false;
 	if ((ballRight() >= paddle1X) && (ballLeft() <= paddle1X)) {
 		if ((ballBottom() >= paddle1Y) && (ballTop() <= paddle1Y + paddleH)) {
+			float awesomeness = ballY - paddle1Y - paddleH / 2;
+			dY += 0.05 * awesomeness;
 			returnValue = true;
 		}
 	}
-	if ((ballLeft() <= paddle2X+paddleW) && (ballRight() >= paddle2X+paddleW)) {
+	if ((ballLeft() <= paddle2X + paddleW) && (ballRight() >= paddle2X + paddleW)) {
 		if ((ballBottom() >= paddle2Y) && (ballTop() <= paddle2Y + paddleH)) {
+			float awesomeness = ballY - paddle2Y - paddleH / 2;
+			dY += 0.05 * awesomeness;
 			returnValue = true;
 		}
 	}
@@ -83,23 +148,12 @@ float ballBottom() {
 	return ballY + ballR;
 }
 
-// void keyPressed() {
-// 	if (key==CODED) {
-// 		if (keyCode==UP && paddle1Y >= paddleH) {
-// 			pongBoard.emit('move', 'player1', 'up');
-// 		} 
-// 		if (keyCode==DOWN && paddle1Y <= height - 2 * paddleH) {
-// 			pongBoard.emit('move', 'player1', 'down');
-// 		} 
-// 	}
-// }
-
 pongBoard.on('move1', function (tilt) {
-	paddle1Y = ((h-border)/2 + (h-border)*tilt.beta/180);
+	paddle1Y = ((boardHeight)/2 + (boardHeight)*tilt.beta/180);
 });
 
 pongBoard.on('move2', function (tilt) {
-	paddle2Y = ((h-border)/2 + (h-border)*tilt.beta/180);
+	paddle2Y = ((boardHeight)/2 + (boardHeight)*tilt.beta/180);
 });
 
 // Event listener for sliding
