@@ -21,10 +21,10 @@ server.on('request', app);
 // HTTP requests 
 var io = socketio(server);
 
+var phones = [];
+
 // // use socket server as an event emitter in order to listen for new connctions
 io.on('connection', function(socket){
-  // socket.emit('connected', )
-
   //receives the newly connected socket
   //called for each browser that connects to our server
   console.log('A new client has connected')
@@ -35,9 +35,19 @@ io.on('connection', function(socket){
     console.log('socket id ' + socket.id + ' has disconnected. : ('); 
   })
 
-  socket.on('phone', function(yAcceleration) {
-    socket.broadcast.emit('phoneMove', yAcceleration);
+  socket.on('phoneConnect', function() {
+    phones.push(socket);
+    socket.emit('phoneConnected', phones.length-1);
   })
+
+  socket.on('phone1', function(tilt) {
+    socket.broadcast.emit('phone1Move', tilt);
+  })
+
+  socket.on('phone2', function(tilt) {
+    socket.broadcast.emit('phone2Move', tilt);
+  })
+
   // server is receiving draw data from the client here 
   // so we want to broadcast that data to all other connected clients 
   socket.on('paddleMovement', function(player, yDirection){
