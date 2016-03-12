@@ -1,0 +1,19 @@
+#phone-display {
+	display: none;
+	width: 100%;
+	height: 100%;
+	background-color: black;
+	color: white;
+}
+
+button {
+	border: 3px solid white;
+	background-color: black;
+	color: white;
+	width: 50vw;
+	height: 30vh;
+	font-size: 5em;
+	position:relative;
+  top:25%; 
+  left:25%;
+}

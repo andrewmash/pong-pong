@@ -28,6 +28,9 @@ float easing = 0.05;
 float player1score = 0;
 float player2score = 0;
 
+boolean playing = false;
+
+var players = [];
 var bumpers = [];
 var wells = [];
 
@@ -279,6 +282,22 @@ class Well {
 
 }
 
+void countDown() {
+	textSize(100);
+	int count = 3;
+
+	text(count, boardWidth/2-200, boardHeight/2, 800, 800);
+	var timer = setInterval(function() {
+		count--;
+		text(count, boardWidth/2-200, boardHeight/2, 800, 800);
+		if (count===0) {
+			clearInterval(timer);
+			playing = true;
+			loop();
+		}
+	}, 1000);
+}
+
 /* @pjs font='8-bit-wonder.TTF'; */
 PFont font_name;
 
@@ -307,6 +326,10 @@ void draw() {
 	//player paddles
 	rect(paddle1X, paddle1Y, paddleW, paddleH);
 	rect(paddle2X, paddle2Y, paddleW, paddleH);
+
+	if (!playing) {
+		noLoop();
+	}
 
 	if (Math.max(player1score, player2score) === 3 && bumpers.length === 0) {
 		bumpers.push(new Bumper(random(100, boardWidth-100), random(100, boardHeight-100), 100, 0, true));
@@ -366,7 +389,9 @@ pongBoard.on('move2', function (tilt) {
 	paddle2Y = ((boardHeight)/2 + (boardHeight)*tilt.beta/120) - paddleH/2;
 });
 
-
+pongBoard.on('play', function() {
+	countDown();
+});
 
 
 

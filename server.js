@@ -18,8 +18,8 @@ server.on('request', app);
 var io = socketio(server);
 
 var phones = {
-  phone1: null,
-  phone2: null
+  phone1: {},
+  phone2: {}
 };
 
 // // use socket server as an event emitter in order to listen for new connctions
@@ -32,29 +32,37 @@ io.on('connection', function (socket) {
   //event that runs anytime a socket disconnects
   socket.on('disconnect', function () {
     console.log('socket id ' + socket.id + ' has disconnected. : (');
-    if (phones.phone1 === socket.id) {
+    if (phones.phone1.socket === socket.id) {
       console.log("They were phone1.");
-      phones.phone1 = null;
+      phones.phone1 = {};
     }
-    if (phones.phone2 === socket.id) {
+    if (phones.phone2.socket === socket.id) {
       console.log("They were phone2.");
-      phones.phone2 = null;
+      phones.phone2 = {};
     }
   });
 
   socket.on('phoneConnect', function () {
     var id;
-    if (!phones.phone1) {
+    if (!phones.phone1.socket) {
       console.log("Assigning ", socket.id, " to phone1");
-      phones.phone1 = socket.id;
+      phones.phone1.socket = socket.id;
       id = '1';
-    } else if (!phones.phone2) {
+    } else if (!phones.phone2.socket) {
       console.log("Assigning ", socket.id, " to phone2");
-      phones.phone2 = socket.id;
+      phones.phone2.socket = socket.id;
       id = '2';
     }
     socket.emit('phoneConnected', id);
   });
+
+  socket.on('phoneReady', function(phone) {
+    io.sockets.emit('phonesReady');
+    // phones[phone].ready = true;
+    // if (phones.phone1.ready && phones.phone2.ready) {
+    //   io.sockets.emit('phonesReady');
+    // }
+  })
 
   socket.on('phone1', function (tilt) {
     socket.broadcast.emit('phone1Move', tilt);
@@ -64,14 +72,8 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('phone2Move', tilt);
   });
 
-  // server is receiving draw data from the client here 
-  // so we want to broadcast that data to all other connected clients 
   socket.on('paddleMovement', function (player, yDirection) {
     console.log('paddle moving');
-    // we need to emit an event all sockets except the socket that originally emitted the 
-    // the draw data to the server 
-    // broadcasting means sending a message to everyone else except for the 
-    // the socket that starts it 
     if (player == 'player1') {
       io.sockets.emit('paddleMove1', yDirection);
     } else if (player == 'player2') {
