@@ -11,12 +11,12 @@ float ballR = 10;
 float dX = random(8, 12);
 float dY = random(-2, 2);
 float speedBase = 10;
-float paddle1X;
-float paddle1Y = (h-2*border)/2;
-float paddle2X;
-float paddle2Y = 10;
 float paddleW = 30;
 float paddleH = h/5;
+float paddle1X;
+float paddle1Y = (h-2*border)/2-paddleH/2;
+float paddle2X;
+float paddle2Y = (h-2*border)/2-paddleH/2;
 float dPaddle = paddleH;
 
 float velocity1 = 0;
@@ -24,6 +24,8 @@ float velocity2 = 0;
 float easing = 0.05;
 float player1score = 0;
 float player2score = 0;
+
+var bumpers = [];
 
 class PVector {
 	float x;
@@ -108,7 +110,7 @@ class Mover {
 	void checkCollisions() {
 		checkLeftPaddle();
 		checkRightPaddle();
-		// checkBumpers();
+		checkBumpers();
 	}
 
 	void checkTopEdges() {
@@ -157,6 +159,26 @@ class Mover {
 				velocity.y += 0.08 * awesomeness;
 				velocity.x = -1.1*velocity.x
 			}
+		}
+	}
+
+	void checkBumpers() {
+		bumpers.forEach(function(bumper) {
+			checkBumper(bumper);
+		});
+	}
+
+	void checkBumper(bumper) {
+		//get distances between the balls
+		PVector distanceVector = new PVector(bumper.location.x-location.x, bumper.location.y-location.y);
+		float distance = distanceVector.mag();
+		//if touching
+		if (distance<=bumper.radius+ballR) {
+			//get angle of bVect (vector connecting their centers)
+			float theta = atan2(distanceVector.x, distanceVector.y);
+			rotate(Math.PI*theta/180);
+			velocity.x = -velocity.x;
+			rotate(-Math.PI*theta/180);
 		}
 	}
 
@@ -239,10 +261,11 @@ void setup() {
 	textFont(font_name, 32);
 
 	ball = new Mover(boardWidth / 2, boardHeight / 2, random(8, 12), random(-2, 2), 0, 0, 15);
-	bumper = new Bumper(random(30, boardWidth-30), random(30, boardHeight-30), 20, 0, true);
+	bumpers.push(new Bumper(random(30, boardWidth-30), random(30, boardHeight-30), 100, 0, true));
 }
 
-void draw() {  
+void draw() {
+	fill(255)  
 	background(0, 0, 0);
 	textSize(100);
 	text(player1score, boardWidth * 0.3, 100, 100, 100);
@@ -278,7 +301,9 @@ void draw() {
 
 	ball.checkEdges();
 	ball.update();
-	bumper.update();
+	bumpers.forEach(function(bumper) {
+		bumper.update();
+	});
 }
 
 pongBoard.on('move1', function (tilt) {
