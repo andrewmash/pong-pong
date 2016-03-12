@@ -91,18 +91,18 @@ class Mover {
 			player1score++;
 			location.x = originalBallX;
 			location.y = originalBallY;
-			velocity.x = random(-(speedBase - 2), -(speedBase + 2));
-			velocity.y = random(-2, 2);
-			speedBase++;
+			velocity.x = speedBase
+			velocity.y = random(-4, 4);
+			speedBase = speedBase + 0.25;
 		}
 
 		if (ballLeft() < 0) {
 			player2score++;
 			location.x = originalBallX;
 			location.y = originalBallY;
-			velocity.x = random(speedBase - 2, speedBase + 2);
-			velocity.y = random(-2, 2);
-			speedBase++;
+			velocity.x = speedBase
+			velocity.y = random(-4, 4);
+			speedBase = speedBase + 0.25;
 		}
 	}
 
@@ -294,10 +294,7 @@ void setup() {
 	font_name = loadFont('8-bit-wonder.ttf');
 	textFont(font_name, 32);
 
-	ball = new Mover(boardWidth / 2, boardHeight / 2, random(8, 12), random(-2, 2), 0, 0, 15);
-	bumpers.push(new Bumper(random(100, boardWidth-100), random(100, boardHeight-100), 100, 0, true));
-	wells.push(new Well(random(100, boardWidth - 100), random(100, boardHeight - 100), 100, 0, true, 5000));
-	wells.push(new Well(random(100, boardWidth - 100), random(100, boardHeight - 100), 100, 0, true, -3000));
+	ball = new Mover(boardWidth / 2, boardHeight / 2, random(8, 12), random(-2, 2), 0, 0, 20);
 }
 
 void draw() {
@@ -310,6 +307,22 @@ void draw() {
 	//player paddles
 	rect(paddle1X, paddle1Y, paddleW, paddleH);
 	rect(paddle2X, paddle2Y, paddleW, paddleH);
+
+	if (Math.max(player1score, player2score) === 3 && bumpers.length === 0) {
+		bumpers.push(new Bumper(random(100, boardWidth-100), random(100, boardHeight-100), 100, 0, true));
+	}
+
+	if (Math.max(player1score, player2score) === 5 && wells.length === 0) {
+		wells.push(new Well(random(500, boardWidth - 500), random(500, boardHeight - 500), 50, 0, true, -5000));
+	}
+
+	if (Math.max(player1score, player2score) === 7 && bumpers.length === 1) {
+		bumpers.push(new Bumper(random(500, boardWidth-500), random(500, boardHeight-500), 50, 0, true));
+	}
+
+	if (Math.max(player1score, player2score) === 9 && wells.length === 1) {
+		wells.push(new Well(random(500, boardWidth - 500), random(500, boardHeight - 500), 50, 0, true, 5000));
+	}
 	
 	//dotted center line
 	for (int i = 0; i < 23; i++) {
