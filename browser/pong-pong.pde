@@ -19,6 +19,9 @@ float paddle2X;
 float paddle2Y = (h-2*border)/2-paddleH/2;
 float dPaddle = paddleH;
 
+float bumperGrowthRate = 0.5;
+float wellGrowthRate = 1.5;
+
 float velocity1 = 0;
 float velocity2 = 0;
 float easing = 0.05;
@@ -26,66 +29,27 @@ float player1score = 0;
 float player2score = 0;
 
 var bumpers = [];
-
-class PVector {
-	float x;
-	float y;
-
-	PVector(float x_, float y_) {
-		x = x_;
-		y = y_;
-	}
-
-	void add(PVector v) {
-		y = y + v.y;
-		x = x + v.x;
-	}
-
-	void sub(PVector v) {
-    	x = x - v.x;
-    	y = y - v.y;
-  	}
-
-  void mult(float n) {
-   		x = x * n;
-   		y = y * n;
- 	}
-
- 	void div(float n) {
-  		x = x / n;
-  		y = y / n;
-	}
-
-	void normalize() {
- 		float m = mag();
- 		if (m != 0) {
-   			div(m);
- 		}
-	}
-
-	void limit(float max) {
-		if (mag() > max) {
-			normalize();
-			mult(max);
-		}
-	}
-
- 	float mag() {
-  		return sqrt(x*x + y*y);
-	}
-}
+var wells = [];
 
 class Mover {
 	PVector location;
 	PVector velocity;
 	PVector acceleration;
 	float topSpeed;
+	float mass;
 
 	void update() {
 		velocity.add(acceleration);
 		velocity.limit(topSpeed);
 		location.add(velocity);
+		acceleration.mult(0);
 		display();
+	}
+
+	void applyForce (PVector force) {
+		PVector f = force.get();
+		// f.div(mass);
+		acceleration.add(f);
 	}
 
 	void display() {
@@ -95,6 +59,7 @@ class Mover {
 	}
 
 	Mover(float locationX, float locationY, float velocityX, float velocityY, float accelX, float accelY, float maxSpeed) {
+	mass = 1;
   	location = new PVector(locationX, locationY);
   	velocity = new PVector(velocityX, velocityY);
   	acceleration = new PVector(accelX, accelY);
@@ -111,6 +76,7 @@ class Mover {
 		checkLeftPaddle();
 		checkRightPaddle();
 		checkBumpers();
+		checkWells();
 	}
 
 	void checkTopEdges() {
@@ -182,6 +148,22 @@ class Mover {
 		}
 	}
 
+	void checkWells() {
+		wells.forEach(function (well) {
+			checkWell(well);
+		})
+	}
+
+	void checkWell (well) {
+		PVector dir = PVector.sub(well.location, ball.location);
+		float distance = dir.mag();
+		distance = constrain(distance, 1, 1000000);
+		dir.normalize();
+		float m = well.mass / (distance * distance);
+		dir.mult(m);
+		ball.applyForce(dir);
+	}
+
 	float ballLeft() {
 		return location.x - ballR;
 	}
@@ -213,7 +195,7 @@ class Bumper {
 
 	void display() {
 		stroke(0);
-		fill(204, 155, 255);
+		fill(161, 235, 136);
 		ellipse(location.x, location.y, 2 * radius, 2 * radius);
 	}
 
@@ -227,14 +209,14 @@ class Bumper {
   void updateSize() {
   	if (growing) {
   		if (radius < maxRadius) {
-  			radius += 0.5;
+  			radius += bumperGrowthRate;
   		} else {
   			growing = false;
-  			radius -= 0.5;
+  			radius -= bumperGrowthRate;
   		}
   	} else {
   		if (radius > 0) {
-  			radius -= 0.5;
+  			radius -= bumperGrowthRate;
   		} else {
   			growing = true;
   			location.x = random(30, boardWidth-30);
@@ -243,6 +225,58 @@ class Bumper {
   		}
   	}
   }
+}
+
+class Well {
+	PVector location;
+	float maxRadius;
+	float radius;
+	boolean growing;
+	float mass;
+
+	void update() {
+		display();
+		updateSize();
+	}
+
+	void display() {
+		stroke(0);
+		if (mass > 0) {
+			fill(204, 155, 255);
+		} else {
+			fill(222, 255, 59);
+		}
+		ellipse(location.x, location.y, 2 * radius, 2 * radius);
+	}
+
+	Well(float locationX, float locationY, float maxR, float r, boolean grow, float weight) {
+    	location = new PVector(locationX, locationY);
+    	radius = r;
+    	maxRadius = maxR;
+    	growing = grow;
+    	mass = weight;
+  }
+
+  void updateSize() {
+  	if (growing) {
+  		if (radius < maxRadius) {
+  			radius += wellGrowthRate;
+  		} else {
+  			growing = false;
+  			radius -= wellGrowthRate;
+  		}
+  	} else {
+  		if (radius > 0) {
+  			radius -= wellGrowthRate;
+  		} else {
+  			growing = true;
+  			location.x = random(30, boardWidth-30);
+  			location.y = random(30, boardHeight-30);
+  			maxRadius = random(20, 60);
+  		}
+  	}
+  }
+
 }
 
 /* @pjs font='8-bit-wonder.TTF'; */
@@ -261,7 +295,9 @@ void setup() {
 	textFont(font_name, 32);
 
 	ball = new Mover(boardWidth / 2, boardHeight / 2, random(8, 12), random(-2, 2), 0, 0, 15);
-	bumpers.push(new Bumper(random(30, boardWidth-30), random(30, boardHeight-30), 100, 0, true));
+	bumpers.push(new Bumper(random(100, boardWidth-100), random(100, boardHeight-100), 100, 0, true));
+	wells.push(new Well(random(100, boardWidth - 100), random(100, boardHeight - 100), 100, 0, true, 5000));
+	wells.push(new Well(random(100, boardWidth - 100), random(100, boardHeight - 100), 100, 0, true, -3000));
 }
 
 void draw() {
@@ -303,6 +339,9 @@ void draw() {
 	ball.update();
 	bumpers.forEach(function(bumper) {
 		bumper.update();
+	});
+	wells.forEach(function(well) {
+		well.update();
 	});
 }
 
