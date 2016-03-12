@@ -108,6 +108,7 @@ class Mover {
 	void checkCollisions() {
 		if ((ballRight() >= paddle1X) && (ballLeft() <= paddle1X)) {
 			if ((ballBottom() >= paddle1Y) && (ballTop() <= paddle1Y + paddleH)) {
+				if (music.paused) boing.play();
 				float awesomeness = location.y - paddle1Y - paddleH / 2;
 				velocity.y += 0.08 * awesomeness;
 				velocity.x = -1.1*velocity.x
@@ -115,6 +116,7 @@ class Mover {
 		}
 		if ((ballLeft() <= paddle2X + paddleW) && (ballRight() >= paddle2X + paddleW)) {
 			if ((ballBottom() >= paddle2Y) && (ballTop() <= paddle2Y + paddleH)) {
+				if (music.paused) tschak.play();
 				float awesomeness = location.y - paddle2Y - paddleH / 2;
 				velocity.y += 0.08 * awesomeness;
 				velocity.x = -1.1*velocity.x
@@ -124,7 +126,8 @@ class Mover {
 
 	void checkTopEdges() {
 	    if (ballBottom() > height || ballTop() < 0) {
-	      velocity.y = -velocity.y;
+	      	boom.play();
+	      	velocity.y = -velocity.y;
 	    }
 	}
 
@@ -170,9 +173,10 @@ class Mover {
 /* @pjs font='8-bit-wonder.TTF'; */
 PFont font_name;
 
-var audio = document.getElementById('music');
-
-audio.play();
+var music = document.getElementById('music');
+var boing = document.getElementById('boing');
+var boom = document.getElementById('boom');
+var tschak = document.getElementById('tschak');
 
 void setup() {
 	size(boardWidth, boardHeight);
@@ -201,30 +205,9 @@ void draw() {
 		}
 	}
 
-	// Scoring conditions
-	if (ball.ballRight() > width) {
-		player1score++;
-		ballX = originalBallX;
-		ballY = originalBallY;
-		dX = random(-(speedBase - 2), -(speedBase + 2));
-		dY = random(-2, 2);
-		if (speedBase < 23) {
-			speedBase++;
-		}
-	}
-
-	if (ball.ballLeft() < 0) {
-		player2score++;
-		ballX = originalBallX;
-		ballY = originalBallY;
-		dX = random(speedBase - 2, speedBase + 2);
-		dY = random(-2, 2);
-		if (speedBase < 23) {
-			speedBase++;
-		}
-	}
-
 	// Victory conditions
+
+	if (player1score + player2score === 3 && music.paused) music.play();
 	if (player1score > 10) {
 		translate(boardWidth / 2, boardHeight / 2);
 		textAlign(CENTER, CENTER);
@@ -239,8 +222,8 @@ void draw() {
 		noLoop();
 	}
 
-	ball.update();
 	ball.checkEdges();
+	ball.update();
 }
 
 pongBoard.on('move1', function (tilt) {
