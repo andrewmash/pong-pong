@@ -44,7 +44,7 @@ class PVector {
     	y = y - v.y;
   	}
 
-  	void mult(float n) {
+  void mult(float n) {
    		x = x * n;
    		y = y * n;
  	}
@@ -93,11 +93,11 @@ class Mover {
 	}
 
 	Mover(float locationX, float locationY, float velocityX, float velocityY, float accelX, float accelY, float maxSpeed) {
-    	location = new PVector(locationX, locationY);
-    	velocity = new PVector(velocityX, velocityY);
-    	acceleration = new PVector(accelX, accelY);
-    	topSpeed = maxSpeed;
-  	}
+  	location = new PVector(locationX, locationY);
+  	velocity = new PVector(velocityX, velocityY);
+  	acceleration = new PVector(accelX, accelY);
+  	topSpeed = maxSpeed;
+	}
 
   void checkEdges() {
   	checkCollisions();
@@ -106,35 +106,16 @@ class Mover {
 	}
 
 	void checkCollisions() {
-<<<<<<< HEAD
 		checkLeftPaddle();
 		checkRightPaddle();
 		// checkBumpers();
-=======
-		if ((ballRight() >= paddle1X) && (ballLeft() <= paddle1X)) {
-			if ((ballBottom() >= paddle1Y) && (ballTop() <= paddle1Y + paddleH)) {
-				if (music.paused) boing.play();
-				float awesomeness = location.y - paddle1Y - paddleH / 2;
-				velocity.y += 0.08 * awesomeness;
-				velocity.x = -1.1*velocity.x
-			}
-		}
-		if ((ballLeft() <= paddle2X + paddleW) && (ballRight() >= paddle2X + paddleW)) {
-			if ((ballBottom() >= paddle2Y) && (ballTop() <= paddle2Y + paddleH)) {
-				if (music.paused) tschak.play();
-				float awesomeness = location.y - paddle2Y - paddleH / 2;
-				velocity.y += 0.08 * awesomeness;
-				velocity.x = -1.1*velocity.x
-			}
-		}
->>>>>>> master
 	}
 
 	void checkTopEdges() {
-	    if (ballBottom() > height || ballTop() < 0) {
-	      	boom.play();
-	      	velocity.y = -velocity.y;
-	    }
+    if (ballBottom() > height || ballTop() < 0) {
+      	boom.play();
+      	velocity.y = -velocity.y;
+    }
 	}
 
 	void checkSideEdges() {
@@ -160,6 +141,7 @@ class Mover {
 	void checkRightPaddle() {
 		if ((ballRight() >= paddle1X) && (ballLeft() <= paddle1X)) {
 			if ((ballBottom() >= paddle1Y) && (ballTop() <= paddle1Y + paddleH)) {
+				if (music.paused) boing.play();
 				float awesomeness = location.y - paddle1Y - paddleH / 2;
 				velocity.y += 0.08 * awesomeness;
 				velocity.x = -1.1*velocity.x
@@ -170,6 +152,7 @@ class Mover {
 	void checkLeftPaddle() {
 		if ((ballLeft() <= paddle2X + paddleW) && (ballRight() >= paddle2X + paddleW)) {
 			if ((ballBottom() >= paddle2Y) && (ballTop() <= paddle2Y + paddleH)) {
+				if (music.paused) tschak.play();
 				float awesomeness = location.y - paddle2Y - paddleH / 2;
 				velocity.y += 0.08 * awesomeness;
 				velocity.x = -1.1*velocity.x
