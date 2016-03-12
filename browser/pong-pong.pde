@@ -81,6 +81,7 @@ class Mover {
 
 	void update() {
 		velocity.add(acceleration);
+		velocity.limit(topSpeed);
 		location.add(velocity);
 	}
 
@@ -98,20 +99,59 @@ class Mover {
   	}
 
   	void checkEdges() {
- 
-    if (location.x > width) {
-      location.x = 0;
-    } else if (location.x < 0) {
-      location.x = width;
-    }
- 
-    if (location.y > height) {
-      location.y = 0;
-    } else if (location.y < 0) {
-      location.y = height;
-    }
- 
-  }
+  		checkCollisions();
+  		checkTopEdges();
+  		checkSideEdges();	 
+	}
+
+	void checkCollisions() {
+
+	}
+
+	void checkTopEdges() {
+	    if (ballBottom() > height || ballTop() < 0) {
+	      velocity.y = -velocity.y;
+	    }
+	}
+
+	void checkSideEdges() {
+		if (ballRight() > width) {
+			player1score++;
+			location.x = originalBallX;
+			location.y = originalBallY;
+			velocity.x = random(-(speedBase - 2), -(speedBase + 2));
+			velocity.y = random(-2, 2);
+			speedBase++;
+		}
+
+		if (ballLeft() < 0) {
+			player2score++;
+			location.x = originalBallX;
+			location.y = originalBallY;
+			velocity.x = random(speedBase - 2, speedBase + 2);
+			velocity.y = random(-2, 2);
+			speedBase++;
+		}
+	}
+
+
+	float ballLeft() {
+		return location.x - ballR;
+	}
+
+	float ballRight() {
+		return location.x + ballR;
+	}
+
+	float ballTop() {
+		return location.y - ballR;
+	}
+
+	float ballBottom() {
+		return location.y + ballR;
+	}
+
+
 
 }
 
