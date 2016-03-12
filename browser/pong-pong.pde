@@ -25,6 +25,121 @@ float easing = 0.05;
 float player1score = 0;
 float player2score = 0;
 
+class PVector {
+	float x;
+	float y;
+
+	PVector(float x_, float y_) {
+		x = x_;
+		y = y_;
+	}
+
+	void add(PVector v) {
+		y = y + v.y;
+		x = x + v.x;
+	}
+
+	void sub(PVector v) {
+    	x = x - v.x;
+    	y = y - v.y;
+  	}
+
+  	void mult(float n) {
+   		x = x * n;
+   		y = y * n;
+ 	}
+
+ 	void div(float n) {
+  		x = x / n;
+  		y = y / n;
+	}
+
+	void normalize() {
+ 		float m = mag();
+ 		if (m != 0) {
+   			div(m);
+ 		}
+	}
+
+	void limit(float max) {
+		if (mag() > max) {
+			normalize();
+			mult(max);
+		}
+	}
+
+ 	float mag() {
+  		return sqrt(x*x + y*y);
+	}
+}
+
+class Mover {
+	PVector location;
+	PVector velocity;
+	PVector acceleration;
+	float topSpeed;
+
+	void update() {
+		velocity.add(acceleration);
+		location.add(velocity);
+	}
+
+	void display() {
+		stroke(0);
+		fill(255);
+		ellipse(location.x, location.y, 2 * ballR, 2 * ballR);
+	}
+
+	Mover(float locationX, float locationY, float velocityX, float velocityY, float accelX, float accelY, float maxSpeed) {
+    	location = new PVector(locationX, locationY);
+    	velocity = new PVector(velocityX, velocityY);
+    	acceleration = new PVector(accelX, accelY);
+    	topSpeed = maxSpeed;
+  	}
+
+  	void checkEdges() {
+ 
+    if (location.x > width) {
+      location.x = 0;
+    } else if (location.x < 0) {
+      location.x = width;
+    }
+ 
+    if (location.y > height) {
+      location.y = 0;
+    } else if (location.y < 0) {
+      location.y = height;
+    }
+ 
+  }
+
+}
+
+
+
+// float originalBallX = boardWidth / 2;
+// float originalBallY = boardHeight / 2;
+// float ballX = originalBallX;
+// float ballY = originalBallY;
+// float ballR = 10;
+// float dX = random(8, 12);
+// float dY = random(-2, 2);
+// float speedBase = 10;
+// float paddle1X;
+// float paddle1Y = (h-2*border)/2;
+// float paddle2X;
+// float paddle2Y = 10;
+// float paddleW = 30;
+// float paddleH = h/5;
+// float dPaddle = paddleH;
+
+// float velocity1 = 0;
+// float velocity2 = 0;
+// float easing = 0.05;
+// float player1score = 0;
+// float player2score = 0;
+
+
 /* @pjs font='8-bit-wonder.TTF'; */
 PFont font_name;
 
@@ -38,6 +153,8 @@ void setup() {
 	paddle2X = 0;
 	font_name = loadFont('8-bit-wonder.ttf');
 	textFont(font_name, 32);
+
+	ball = new Mover(boardWidth / 2, boardHeight / 2, random(8, 12), random(-2, 2), 0, 0, 25);
 }
 
 void draw() {  
