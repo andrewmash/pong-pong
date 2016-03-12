@@ -286,11 +286,12 @@ void countDown() {
 	textSize(100);
 	int count = 3;
 
-	text(count, boardWidth/2-200, boardHeight/2, 800, 800);
+	text(count, boardWidth/2-200+200*(3-count), boardHeight/2, 800, 800);
 	var timer = setInterval(function() {
 		count--;
-		text(count, boardWidth/2-200, boardHeight/2, 800, 800);
-		if (count===0) {
+		if(count>0) {
+			text(count, boardWidth/2-200+200*(3-count), boardHeight/2, 800, 800);
+		} else {
 			clearInterval(timer);
 			playing = true;
 			loop();
