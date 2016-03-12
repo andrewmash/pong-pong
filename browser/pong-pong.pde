@@ -106,20 +106,9 @@ class Mover {
 	}
 
 	void checkCollisions() {
-		if ((ballRight() >= paddle1X) && (ballLeft() <= paddle1X)) {
-			if ((ballBottom() >= paddle1Y) && (ballTop() <= paddle1Y + paddleH)) {
-				float awesomeness = location.y - paddle1Y - paddleH / 2;
-				velocity.y += 0.08 * awesomeness;
-				velocity.x = -1.1*velocity.x
-			}
-		}
-		if ((ballLeft() <= paddle2X + paddleW) && (ballRight() >= paddle2X + paddleW)) {
-			if ((ballBottom() >= paddle2Y) && (ballTop() <= paddle2Y + paddleH)) {
-				float awesomeness = location.y - paddle2Y - paddleH / 2;
-				velocity.y += 0.08 * awesomeness;
-				velocity.x = -1.1*velocity.x
-			}
-		}
+		checkLeftPaddle();
+		checkRightPaddle();
+		// checkBumpers();
 	}
 
 	void checkTopEdges() {
@@ -148,6 +137,25 @@ class Mover {
 		}
 	}
 
+	void checkRightPaddle() {
+		if ((ballRight() >= paddle1X) && (ballLeft() <= paddle1X)) {
+			if ((ballBottom() >= paddle1Y) && (ballTop() <= paddle1Y + paddleH)) {
+				float awesomeness = location.y - paddle1Y - paddleH / 2;
+				velocity.y += 0.08 * awesomeness;
+				velocity.x = -1.1*velocity.x
+			}
+		}
+	}
+
+	void checkLeftPaddle() {
+		if ((ballLeft() <= paddle2X + paddleW) && (ballRight() >= paddle2X + paddleW)) {
+			if ((ballBottom() >= paddle2Y) && (ballTop() <= paddle2Y + paddleH)) {
+				float awesomeness = location.y - paddle2Y - paddleH / 2;
+				velocity.y += 0.08 * awesomeness;
+				velocity.x = -1.1*velocity.x
+			}
+		}
+	}
 
 	float ballLeft() {
 		return location.x - ballR;
@@ -167,6 +175,51 @@ class Mover {
 
 }
 
+class Bumper {
+	PVector location;
+	float radius;
+	float maxRadius;
+	boolean growing;
+
+	void update() {
+		display();
+		updateSize();
+	}
+
+	void display() {
+		stroke(0);
+		fill(204, 155, 255);
+		ellipse(location.x, location.y, 2 * radius, 2 * radius);
+	}
+
+	Bumper(float locationX, float locationY, float maxR, float r, boolean grow) {
+    	location = new PVector(locationX, locationY);
+    	radius = r;
+    	maxRadius = maxR;
+    	growing = grow;
+  }
+
+  void updateSize() {
+  	if (growing) {
+  		if (radius < maxRadius) {
+  			radius += 0.5;
+  		} else {
+  			growing = false;
+  			radius -= 0.5;
+  		}
+  	} else {
+  		if (radius > 0) {
+  			radius -= 0.5;
+  		} else {
+  			growing = true;
+  			location.x = random(30, boardWidth-30);
+  			location.y = random(30, boardHeight-30);
+  			maxRadius = random(20, 60);
+  		}
+  	}
+  }
+}
+
 /* @pjs font='8-bit-wonder.TTF'; */
 PFont font_name;
 
@@ -181,7 +234,8 @@ void setup() {
 	font_name = loadFont('8-bit-wonder.ttf');
 	textFont(font_name, 32);
 
-	ball = new Mover(boardWidth / 2, boardHeight / 2, random(8, 12), random(-2, 2), 0, 0, 20);
+	ball = new Mover(boardWidth / 2, boardHeight / 2, random(8, 12), random(-2, 2), 0, 0, 15);
+	bumper = new Bumper(random(30, boardWidth-30), random(30, boardHeight-30), 20, 0, true);
 }
 
 void draw() {  
@@ -239,6 +293,7 @@ void draw() {
 		noLoop();
 	}
 
+	bumper.update();
 	ball.update();
 	ball.checkEdges();
 }
