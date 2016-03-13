@@ -57,11 +57,10 @@ io.on('connection', function (socket) {
   });
 
   socket.on('phoneReady', function(phone) {
-    io.sockets.emit('phonesReady');
-    // phones[phone].ready = true;
-    // if (phones.phone1.ready && phones.phone2.ready) {
-    //   io.sockets.emit('phonesReady');
-    // }
+    phones[phone].ready = true;
+    if (phones.phone1.ready && phones.phone2.ready) {
+      io.sockets.emit('phonesReady');
+    }
   })
 
   socket.on('phone1', function (tilt) {
@@ -73,7 +72,6 @@ io.on('connection', function (socket) {
   });
 
   socket.on('paddleMovement', function (player, yDirection) {
-    console.log('paddle moving');
     if (player == 'player1') {
       io.sockets.emit('paddleMove1', yDirection);
     } else if (player == 'player2') {

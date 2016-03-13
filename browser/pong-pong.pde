@@ -94,7 +94,7 @@ class Mover {
 			player1score++;
 			location.x = originalBallX;
 			location.y = originalBallY;
-			velocity.x = speedBase
+			velocity.x = -speedBase
 			velocity.y = random(-4, 4);
 			speedBase = speedBase + 0.25;
 		}
@@ -147,7 +147,7 @@ class Mover {
 			float theta = atan2(distanceVector.x, distanceVector.y);
 			rotate(Math.PI*theta/180);
 			velocity.x = -velocity.x;
-			rotate(-Math.PI*theta/180);
+			rotate((-Math.PI*theta+90)/180);
 		}
 	}
 
@@ -279,7 +279,6 @@ class Well {
   		}
   	}
   }
-
 }
 
 void countDown() {
@@ -382,12 +381,12 @@ void draw() {
 	});
 }
 
-pongBoard.on('move1', function (tilt) {
-	paddle1Y = ((boardHeight)/2 + (boardHeight)*tilt.beta/120) - paddleH/2;
+pongBoard.on('move1', function (beta) {
+	paddle1Y = ((boardHeight)/2 + (boardHeight)*beta/120) - paddleH/2;
 });
 
-pongBoard.on('move2', function (tilt) {
-	paddle2Y = ((boardHeight)/2 + (boardHeight)*tilt.beta/120) - paddleH/2;
+pongBoard.on('move2', function (beta) {
+	paddle2Y = ((boardHeight)/2 + (boardHeight)*beta/120) - paddleH/2;
 });
 
 pongBoard.on('play', function() {

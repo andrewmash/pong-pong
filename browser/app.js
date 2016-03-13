@@ -22,7 +22,6 @@ var socket = io(window.location.origin);
         document.getElementById('phone-display').style.display = 'block';
     });
 
-    // the draw event is emitted in whiteboard.js and caught here
     pongBoard.on('move', function playerMovement(player, direction) {
       socket.emit('paddleMovement', player, direction);
     })
@@ -41,8 +40,8 @@ var socket = io(window.location.origin);
 
   });
 
-window.addEventListener('deviceorientation', function (event) {
-  socket.emit('phone'+phoneId, event);
+window.addEventListener('deviceorientation', function (tilt) {
+  socket.emit('phone'+phoneId, tilt.beta);
 });
 
 window.mobileAndTabletcheck = function() {
