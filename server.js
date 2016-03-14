@@ -58,8 +58,10 @@ io.on('connection', function (socket) {
 
   socket.on('phoneReady', function(phone) {
     phones[phone].ready = true;
-    if (phones.phone1.ready && phones.phone2.ready) {
-      io.sockets.emit('phonesReady');
+    if( phones.phone1 && phones.phone2) {
+      if (phones.phone1.ready && phones.phone2.ready) {
+        io.sockets.emit('phonesReady');
+      }
     }
   })
 
